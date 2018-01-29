@@ -18,7 +18,7 @@ namespace rasterQ.Controllers
         [HttpGet("{x}/{y}")]
         public async Task<Dictionary<string, string>> Get(double x, double y)
         {
-            var taskList = new Dictionary<string, Task<string>>();
+            var taskList = new Dictionary<string, Task<RasterResult>>();
 
             foreach (var rasterFile in _rasterReader.Files) taskList[rasterFile.BlobName] = rasterFile.ReadValue(x, y, _rasterReader);
 
@@ -26,29 +26,18 @@ namespace rasterQ.Controllers
 
             var values = new Dictionary<string, string>();
 
-            foreach (var task in taskList.Where(t => t.Value.Result != string.Empty)) values[task.Key] = task.Value.Result;
+            foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty)) values[task.Value.Result.Key] = task.Value.Result.Value;
 
-            foreach (var task in taskList.Where( t => t.Key.EndsWith("_Global") && values.ContainsKey(t.Key.Split('_')[0]))) values.Remove(task.Key);
+            foreach (var task in taskList.Where( t => t.Key.EndsWith("_Global") && values.ContainsKey(t.Value.Result.Key.Split('_')[0]))) values.Remove(task.Value.Result.Key);
 
-            var newValues = new Dictionary<string, string>();
-
-            foreach (var value in values)
-            {
-                if (_rasterReader.NiNDictionary.ContainsKey(value.Key))
-                {
-                    var newKey = _rasterReader.NiNDictionary[value.Key][int.Parse(value.Value) -1];
-                    newValues[newKey] = _rasterReader.CodeFetcher.NiNCodes.First(c => c.Kode.Id == newKey).Navn;
-                }
-                else newValues[value.Key] = value.Value;
-            }
-
-            return newValues;
+            return values;
         }
 
         [HttpGet("{x}/{y}/{dataset}")]
-        public async Task<string> Get(double x, double y, string dataset)
+        public async Task<Dictionary<string, string>> Get(double x, double y, string dataset)
         {
-            return await _rasterReader.Files.First(d => d.BlobName == dataset).ReadValue(x, y, _rasterReader);
+            var result = await _rasterReader.Files.First(d => d.BlobName == dataset).ReadValue(x, y, _rasterReader);
+            return new Dictionary<string, string> {{ result.Key, result.Value}};
         }
 
         [HttpGet("{dataset}")]
