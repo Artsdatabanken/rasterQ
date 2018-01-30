@@ -45,18 +45,28 @@ namespace rasterQ.Raster
 
             if (value == string.Empty) return null;
 
-            var result = new Result
+            if (rasterReader.NiNDictionary.ContainsKey(BlobName) && rasterReader.NiNDictionary[BlobName].Count > 1)
             {
-                Key = rasterReader.NiNDictionary.ContainsKey(BlobName)
-                    ? rasterReader.NiNDictionary[BlobName][int.Parse(value) - 1]
-                    : BlobName
+                var key = rasterReader.NiNDictionary[BlobName][int.Parse(value) - 1];
+                return new Result
+                {
+                    Key = key,
+                    Value = rasterReader.NiNCodes.First(c => c.Kode.Id == key).Navn
+
+                };
+
+            }
+            if (rasterReader.NiNDictionary.ContainsKey(BlobName) && rasterReader.NiNDictionary[BlobName].Count == 1)
+                return new Result
+                {
+                    Key = rasterReader.NiNDictionary[BlobName][0],
+                    Value = value
+                };
+            return new Result
+            {
+                Key = BlobName,
+                Value = value
             };
-
-            result.Value = rasterReader.NiNDictionary.ContainsKey(BlobName)
-                ? rasterReader.NiNCodes.First(c => c.Kode.Id == result.Key).Navn
-                : value;
-
-            return result;
         }
 
         private string GetValueFromBytes(byte[] valueBytes)
