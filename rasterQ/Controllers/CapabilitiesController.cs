@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace rasterQ.Controllers
 {
-
     [Route("v1/[controller]")]
     public class CapabilitiesController : Controller
     {
-
         [HttpGet]
         public Dictionary<string, Dictionary<string, string>> Get()
         {

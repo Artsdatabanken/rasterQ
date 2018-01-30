@@ -50,7 +50,8 @@ namespace rasterQ
             var metadata = pageBlob.Metadata;
 
             var nullValue = float.NaN;
-            var nullValueParsed = metadata.ContainsKey("nullvalue") && float.TryParse(metadata["nullvalue"], NumberStyles.Any, CultureInfo.InvariantCulture, out nullValue);
+            var nullValueParsed = metadata.ContainsKey("nullvalue") && float.TryParse(metadata["nullvalue"],
+                                      NumberStyles.Any, CultureInfo.InvariantCulture, out nullValue);
 
             var dataset = new RasterFile
             {

@@ -31,7 +31,7 @@ namespace rasterQ.Controllers
                 values[task.Value.Result.Key] = new Dictionary<string, string>
                 {
                     {"value", task.Value.Result.Value},
-                    {"dataset",  $"{Request.Scheme}://{Request.Host}{Request.PathBase}/v1/datasets/" + task.Key}
+                    {"dataset", $"{Request.Scheme}://{Request.Host}{Request.PathBase}/v1/datasets/" + task.Key}
                 };
 
             NormalizeHeights(taskList, values);
@@ -78,7 +78,7 @@ namespace rasterQ.Controllers
         [HttpGet]
         public ActionResult Get()
         {
-            return RedirectToAction("Get","Capabilities");
+            return RedirectToAction("Get", "Capabilities");
         }
     }
 }
