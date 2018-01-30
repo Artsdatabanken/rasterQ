@@ -84,6 +84,12 @@ namespace rasterQ.Controllers
             return _rasterReader.PageBlobs[dataset].Metadata as Dictionary<string, string>;
         }
 
+        [HttpGet("{dataset}/{key}")]
+        public string Get(string dataset, string key)
+        {
+            return _rasterReader.PageBlobs[dataset].Metadata[key];
+        }
+
         [HttpGet]
         public Dictionary<string, IDictionary<string, string>> Get()
         {
