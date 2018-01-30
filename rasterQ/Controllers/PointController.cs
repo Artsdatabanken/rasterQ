@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace rasterQ.Controllers
 {
     [Route("v1/[controller]")]
-    public class ValuesController : Controller
+    public class PointController : Controller
     {
         private readonly RasterReader _rasterReader;
 
-        public ValuesController(RasterReader rasterReader)
+        public PointController(RasterReader rasterReader)
         {
             _rasterReader = rasterReader;
         }
@@ -28,14 +28,19 @@ namespace rasterQ.Controllers
             var values = new Dictionary<string, Dictionary<string, string>>();
 
             foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty))
-                values[task.Value.Result.Key] = new Dictionary<string, string>{ { "value", task.Value.Result.Value}, {"dataset", $"{Request.Scheme}://{Request.Host}{Request.PathBase}/v1/values/" + task.Key}};
+                values[task.Value.Result.Key] = new Dictionary<string, string>
+                {
+                    {"value", task.Value.Result.Value},
+                    {"dataset",  $"{Request.Scheme}://{Request.Host}{Request.PathBase}/v1/datasets/" + task.Key}
+                };
 
             NormalizeHeights(taskList, values);
 
             return values;
         }
 
-        private static void NormalizeHeights(Dictionary<string, Task<RasterResult>> taskList, Dictionary<string, Dictionary<string, string>> values)
+        private static void NormalizeHeights(Dictionary<string, Task<RasterResult>> taskList,
+            Dictionary<string, Dictionary<string, string>> values)
         {
             foreach (var task in taskList.Where(t =>
                 t.Key.EndsWith("_Global") && values.ContainsKey(t.Value.Result.Key.Split('_')[0])))
@@ -49,9 +54,9 @@ namespace rasterQ.Controllers
             }
 
             var previousKeys = new string[values.Keys.Count];
-            values.Keys.CopyTo(previousKeys,0);
+            values.Keys.CopyTo(previousKeys, 0);
 
-            foreach (var valuesKey in previousKeys.Where( k => k.StartsWith("Høyde_")))
+            foreach (var valuesKey in previousKeys.Where(k => k.StartsWith("Høyde_")))
             {
                 values["Høyde"] = values[valuesKey];
                 values.Remove(valuesKey);
@@ -70,21 +75,10 @@ namespace rasterQ.Controllers
             return new Dictionary<string, string> {{result.Key, result.Value}};
         }
 
-        [HttpGet("{dataset}")]
-        public Dictionary<string, string> Get(string dataset)
-        {
-            return _rasterReader.PageBlobs[dataset].Metadata as Dictionary<string, string>;
-        }
-
         [HttpGet]
-        public Dictionary<string, IDictionary<string, string>> Get()
+        public ActionResult Get()
         {
-            var metadata = new Dictionary<string, IDictionary<string, string>>();
-
-            foreach (var cloudPageBlob in _rasterReader.PageBlobs)
-                metadata[cloudPageBlob.Key] = cloudPageBlob.Value.Metadata;
-
-            return metadata;
+            return RedirectToAction("Get","Capabilities");
         }
     }
 }

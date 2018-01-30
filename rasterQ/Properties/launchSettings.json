@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "v1/values",
+      "launchUrl": "v1/point",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -19,7 +19,7 @@
     "rasterQ": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "v1/values",
+      "launchUrl": "v1/point",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
