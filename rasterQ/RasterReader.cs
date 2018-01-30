@@ -17,11 +17,11 @@ namespace rasterQ
 
         public RasterReader(string key, string containerReference)
         {
-            var cloudStorageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=artsdbstorage;AccountKey=erWuCQB0eYcWmOrARt3yR4n3WqRp++u/2ziW7chGMSJUCJSZQg4hB1pozJa4D7BvPN5fkKKIWbzAsR1EKJUK1g==;EndpointSuffix=core.windows.net");
+            var cloudStorageAccount = CloudStorageAccount.Parse(key);
 
             var client = cloudStorageAccount.CreateCloudBlobClient();
 
-            Container = client.GetContainerReference("rasterdata");
+            Container = client.GetContainerReference(containerReference);
 
             BlobContinuationToken token = null;
             do
