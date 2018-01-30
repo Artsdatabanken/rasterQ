@@ -28,19 +28,11 @@ namespace rasterQ.Controllers
             var values = new Dictionary<string, List<string>>();
 
             foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty))
-                values[task.Value.Result.Key] = new List<string>{task.Value.Result.Value, task.Value.Result.Key};
+                values[task.Value.Result.Key] = new List<string>{task.Value.Result.Value, _rasterReader.PageBlobs[task.Key].Metadata["dataorigin"]};
 
             NormalizeHeights(taskList, values);
 
-            RemoveDuplicateKeys(values);
-
             return values;
-        }
-
-        private static void RemoveDuplicateKeys(IReadOnlyDictionary<string, List<string>> values)
-        {
-            foreach (var duplicate in values.Where(v => values[v.Key].Contains(v.Key)))
-                duplicate.Value.Remove(duplicate.Key);            
         }
 
         private static void NormalizeHeights(Dictionary<string, Task<RasterResult>> taskList, IDictionary<string, List<string>> values)
@@ -82,12 +74,6 @@ namespace rasterQ.Controllers
         public Dictionary<string, string> Get(string dataset)
         {
             return _rasterReader.PageBlobs[dataset].Metadata as Dictionary<string, string>;
-        }
-
-        [HttpGet("{dataset}/{key}")]
-        public string Get(string dataset, string key)
-        {
-            return _rasterReader.PageBlobs[dataset].Metadata[key];
         }
 
         [HttpGet]
