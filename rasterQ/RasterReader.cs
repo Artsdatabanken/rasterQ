@@ -65,7 +65,8 @@ namespace rasterQ
                 ValueLength = int.Parse(metadata["valuelength"]),
                 Resolution = ParseHeaderDouble(metadata["resolution"]),
                 Crs = metadata.ContainsKey("crs") && metadata["crs"] != "WGS-84" ? int.Parse(metadata["crs"]) : 0,
-                NullValue = nullValueParsed ? nullValue : float.NaN
+                NullValue = nullValueParsed ? nullValue : float.NaN,
+                DataOrigin = metadata["dataorigin"]
             };
 
             Files.Add(dataset);

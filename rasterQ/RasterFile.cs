@@ -24,6 +24,7 @@ namespace rasterQ
         public long Row { get; set; }
         public int Crs { get; set; }
         public double NullValue { get; set; }
+        public string DataOrigin { get; set; }
 
         public async Task<RasterResult> ReadValue(double queryX, double queryY, RasterReader rasterReader)
         {
