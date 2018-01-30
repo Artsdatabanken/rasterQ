@@ -28,7 +28,7 @@ namespace rasterQ.Controllers
             var values = new Dictionary<string, List<string>>();
 
             foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty))
-                values[task.Value.Result.Key] = new List<string>{task.Value.Result.Value, _rasterReader.PageBlobs[task.Key].Metadata["dataorigin"]};
+                values[task.Value.Result.Key] = new List<string>{task.Value.Result.Value, task.Key};
 
             NormalizeHeights(taskList, values);
 
