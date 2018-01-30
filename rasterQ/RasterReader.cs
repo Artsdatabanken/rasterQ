@@ -9,11 +9,11 @@ namespace rasterQ
 {
     public class RasterReader
     {
-        public List<RasterFile> Files = new List<RasterFile>();
-        public CloudBlobContainer Container;
-        public Dictionary<string, CloudPageBlob> PageBlobs = new Dictionary<string, CloudPageBlob>();
-        public Dictionary<string, List<string>> NiNDictionary = new Dictionary<string, List<string>>();
         public CodeFetcher CodeFetcher;
+        public CloudBlobContainer Container;
+        public List<RasterFile> Files = new List<RasterFile>();
+        public Dictionary<string, List<string>> NiNDictionary = new Dictionary<string, List<string>>();
+        public Dictionary<string, CloudPageBlob> PageBlobs = new Dictionary<string, CloudPageBlob>();
 
         public RasterReader(string key, string containerReference)
         {
@@ -30,15 +30,15 @@ namespace rasterQ
                 token = resultSegment.ContinuationToken;
 
                 foreach (var item in resultSegment.Results) ReadBlobMetadata((CloudPageBlob) item).Wait();
-
             } while (token != null);
 
             CodeFetcher = new CodeFetcher();
-            
+
             foreach (var rasterFile in Files)
             {
                 if (CodeFetcher.NiNCodes.All(c => c.Kode.Id != rasterFile.BlobName)) continue;
-                var codeList = CodeFetcher.NiNCodes.First(c => c.Kode.Id == rasterFile.BlobName).UnderordnetKoder.Select(underordnetKode => underordnetKode.Id).ToList();
+                var codeList = CodeFetcher.NiNCodes.First(c => c.Kode.Id == rasterFile.BlobName).UnderordnetKoder
+                    .Select(underordnetKode => underordnetKode.Id).ToList();
                 codeList.Sort();
                 NiNDictionary[rasterFile.BlobName] = codeList;
             }
@@ -61,7 +61,9 @@ namespace rasterQ
                 ValueLength = int.Parse(metadata["valuelength"]),
                 Resolution = ParseHeaderDouble(metadata["resolution"]),
                 Crs = metadata.ContainsKey("crs") && metadata["crs"] != "WGS-84" ? int.Parse(metadata["crs"]) : 0,
-                NullValue = metadata.ContainsKey("nullvalue") ? float.Parse(metadata["nullvalue"], NumberStyles.Any, CultureInfo.InvariantCulture) : float.NaN
+                NullValue = metadata.ContainsKey("nullvalue")
+                    ? float.Parse(metadata["nullvalue"], NumberStyles.Any, CultureInfo.InvariantCulture)
+                    : float.NaN
             };
 
             Files.Add(dataset);

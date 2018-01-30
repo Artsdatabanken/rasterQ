@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using rasterQ.Controllers;
+
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace rasterQ
@@ -27,7 +27,7 @@ namespace rasterQ
 
         public async Task<RasterResult> ReadValue(double queryX, double queryY, RasterReader rasterReader)
         {
-            var localCoordinates = Crs == 0 ? new[] { queryX, queryY } : Projector.Wgs84ToUtm(queryX, queryY, Crs);
+            var localCoordinates = Crs == 0 ? new[] {queryX, queryY} : Projector.Wgs84ToUtm(queryX, queryY, Crs);
 
             if (OutsideBbox(localCoordinates)) return null;
 
@@ -43,9 +43,16 @@ namespace rasterQ
 
             if (value == string.Empty) return null;
 
-            var result = new RasterResult {Key = rasterReader.NiNDictionary.ContainsKey(BlobName) ? rasterReader.NiNDictionary[BlobName][int.Parse(value) - 1] : BlobName};
+            var result = new RasterResult
+            {
+                Key = rasterReader.NiNDictionary.ContainsKey(BlobName)
+                    ? rasterReader.NiNDictionary[BlobName][int.Parse(value) - 1]
+                    : BlobName
+            };
 
-            result.Value = rasterReader.NiNDictionary.ContainsKey(BlobName)  ? rasterReader.CodeFetcher.NiNCodes.First(c => c.Kode.Id == result.Key).Navn : value;
+            result.Value = rasterReader.NiNDictionary.ContainsKey(BlobName)
+                ? rasterReader.CodeFetcher.NiNCodes.First(c => c.Kode.Id == result.Key).Navn
+                : value;
 
             return result;
         }
@@ -94,12 +101,5 @@ namespace rasterQ
             Column = (long) ((coordinates[0] - MinX) / Resolution);
             Row = (long) ((MaxY - coordinates[1]) / Resolution);
         }
-    }
-
-    public class RasterResult
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-
     }
 }

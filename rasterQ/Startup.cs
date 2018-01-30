@@ -19,7 +19,8 @@ namespace rasterQ
         {
             services.AddMvc();
             services.AddCors();
-            services.AddSingleton(new RasterReader(Configuration.GetConnectionString("key"), Configuration["containerReference"]) );
+            services.AddSingleton(new RasterReader(Configuration.GetConnectionString("key"),
+                Configuration["containerReference"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,10 +36,5 @@ namespace rasterQ
 
             app.UseMvc();
         }
-    }
-
-    public class RasterStorage 
-    {
-        public string ConnectionString { get; set; }
     }
 }

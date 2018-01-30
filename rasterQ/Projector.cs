@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rasterQ.Controllers
+namespace rasterQ
 {
     public class Projector
     {
@@ -25,7 +25,7 @@ namespace rasterQ.Controllers
             var latRad = y * deg2Rad;
             var longRad = longTemp * deg2Rad;
             double longOriginRad;
-            
+
             //// Handling of "wonky" norwegian zones. Not needed as we pass in zone. Might be nice to hold on to for future reference.
             //var zoneNumber = (int) (longTemp + 180) / 6 + 1;
             //if (y >= 56.0 && y < 64.0 && longTemp >= 3.0 && longTemp < 12.0) zoneNumber = 32;
