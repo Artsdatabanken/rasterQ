@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using rasterQ.Raster;
 
 namespace rasterQ.Controllers
 {
     [Route("v1/[controller]")]
     public class DatasetsController : Controller
     {
-        private readonly RasterReader _rasterReader;
+        private readonly Reader _rasterReader;
 
-        public DatasetsController(RasterReader rasterReader)
+        public DatasetsController(Reader rasterReader)
         {
             _rasterReader = rasterReader;
         }

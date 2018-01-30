@@ -1,6 +1,6 @@
-﻿namespace rasterQ
+﻿namespace rasterQ.NiN
 {
-    public class NiNCode
+    public class Code
     {
         public string Navn { get; set; }
         public Kode Kode { get; set; }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rasterQ
+namespace rasterQ.Tools
 {
     public class Projector
     {

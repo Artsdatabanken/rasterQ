@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using rasterQ.Tools;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace rasterQ
+namespace rasterQ.Raster
 {
-    public class RasterFile
+    public class Dataset
     {
         public string BlobName { get; set; }
         public double Resolution { get; set; }
@@ -26,7 +27,7 @@ namespace rasterQ
         public double NullValue { get; set; }
         public string DataOrigin { get; set; }
 
-        public async Task<RasterResult> ReadValue(double queryX, double queryY, RasterReader rasterReader)
+        public async Task<Result> ReadValue(double queryX, double queryY, Reader rasterReader)
         {
             var localCoordinates = Crs == 0 ? new[] {queryX, queryY} : Projector.Wgs84ToUtm(queryX, queryY, Crs);
 
@@ -44,7 +45,7 @@ namespace rasterQ
 
             if (value == string.Empty) return null;
 
-            var result = new RasterResult
+            var result = new Result
             {
                 Key = rasterReader.NiNDictionary.ContainsKey(BlobName)
                     ? rasterReader.NiNDictionary[BlobName][int.Parse(value) - 1]
@@ -52,7 +53,7 @@ namespace rasterQ
             };
 
             result.Value = rasterReader.NiNDictionary.ContainsKey(BlobName)
-                ? rasterReader.CodeFetcher.NiNCodes.First(c => c.Kode.Id == result.Key).Navn
+                ? rasterReader.NiNCodes.First(c => c.Kode.Id == result.Key).Navn
                 : value;
 
             return result;

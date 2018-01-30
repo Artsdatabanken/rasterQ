@@ -2,15 +2,16 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using rasterQ.Raster;
 
 namespace rasterQ.Controllers
 {
     [Route("v1/[controller]")]
     public class PointController : Controller
     {
-        private readonly RasterReader _rasterReader;
+        private readonly Reader _rasterReader;
 
-        public PointController(RasterReader rasterReader)
+        public PointController(Reader rasterReader)
         {
             _rasterReader = rasterReader;
         }
@@ -18,7 +19,7 @@ namespace rasterQ.Controllers
         [HttpGet("{x}/{y}")]
         public async Task<Dictionary<string, Dictionary<string, string>>> Get(double x, double y)
         {
-            var taskList = new Dictionary<string, Task<RasterResult>>();
+            var taskList = new Dictionary<string, Task<Result>>();
 
             foreach (var rasterFile in _rasterReader.Files)
                 taskList[rasterFile.BlobName] = rasterFile.ReadValue(x, y, _rasterReader);
@@ -39,7 +40,7 @@ namespace rasterQ.Controllers
             return values;
         }
 
-        private static void NormalizeHeights(Dictionary<string, Task<RasterResult>> taskList,
+        private static void NormalizeHeights(Dictionary<string, Task<Result>> taskList,
             Dictionary<string, Dictionary<string, string>> values)
         {
             foreach (var task in taskList.Where(t =>

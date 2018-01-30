@@ -1,13 +1,11 @@
 ﻿using System.Net.Http;
 using Newtonsoft.Json;
 
-namespace rasterQ
+namespace rasterQ.NiN
 {
     public class CodeFetcher
     {
-        public NiNCode[] NiNCodes;
-
-        public CodeFetcher()
+        public static Code[] Get()
         {
             var client = new HttpClient();
 
@@ -15,7 +13,7 @@ namespace rasterQ
 
             var jsonString = response.Content.ReadAsStringAsync().Result;
 
-            NiNCodes = JsonConvert.DeserializeObject<NiNCode[]>(jsonString);
+            return JsonConvert.DeserializeObject<Code[]>(jsonString);
         }
     }
 }

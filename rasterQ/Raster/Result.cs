@@ -1,6 +1,6 @@
-﻿namespace rasterQ
+﻿namespace rasterQ.Raster
 {
-    public class RasterResult
+    public class Result
     {
         public string Key { get; set; }
         public string Value { get; set; }

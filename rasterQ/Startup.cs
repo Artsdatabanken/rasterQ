@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using rasterQ.Raster;
 
 namespace rasterQ
 {
@@ -19,7 +20,7 @@ namespace rasterQ
         {
             services.AddMvc();
             services.AddCors();
-            services.AddSingleton(new RasterReader(Configuration.GetConnectionString("key"),
+            services.AddSingleton(new Reader(Configuration.GetConnectionString("key"),
                 Configuration["containerReference"]));
         }
 

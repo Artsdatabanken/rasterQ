@@ -4,18 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using rasterQ.NiN;
 
-namespace rasterQ
+namespace rasterQ.Raster
 {
-    public class RasterReader
+    public class Reader
     {
-        public CodeFetcher CodeFetcher;
         public CloudBlobContainer Container;
-        public List<RasterFile> Files = new List<RasterFile>();
+        public List<Dataset> Files = new List<Dataset>();
+        public Code[] NiNCodes;
         public Dictionary<string, List<string>> NiNDictionary = new Dictionary<string, List<string>>();
         public Dictionary<string, CloudPageBlob> PageBlobs = new Dictionary<string, CloudPageBlob>();
 
-        public RasterReader(string key, string containerReference)
+        public Reader(string key, string containerReference)
         {
             var cloudStorageAccount = CloudStorageAccount.Parse(key);
 
@@ -32,12 +33,12 @@ namespace rasterQ
                 foreach (var item in resultSegment.Results) ReadBlobMetadata((CloudPageBlob) item).Wait();
             } while (token != null);
 
-            CodeFetcher = new CodeFetcher();
+            NiNCodes = CodeFetcher.Get();
 
             foreach (var rasterFile in Files)
             {
-                if (CodeFetcher.NiNCodes.All(c => c.Kode.Id != rasterFile.BlobName)) continue;
-                var codeList = CodeFetcher.NiNCodes.First(c => c.Kode.Id == rasterFile.BlobName).UnderordnetKoder
+                if (NiNCodes.All(c => c.Kode.Id != rasterFile.BlobName)) continue;
+                var codeList = NiNCodes.First(c => c.Kode.Id == rasterFile.BlobName).UnderordnetKoder
                     .Select(underordnetKode => underordnetKode.Id).ToList();
                 codeList.Sort();
                 NiNDictionary[rasterFile.BlobName] = codeList;
@@ -53,7 +54,7 @@ namespace rasterQ
             var nullValueParsed = metadata.ContainsKey("nullvalue") && float.TryParse(metadata["nullvalue"],
                                       NumberStyles.Any, CultureInfo.InvariantCulture, out nullValue);
 
-            var dataset = new RasterFile
+            var dataset = new Dataset
             {
                 BlobName = pageBlob.Name,
                 RowLength = int.Parse(metadata["rowlength"]),

@@ -1,4 +1,4 @@
-﻿namespace rasterQ
+﻿namespace rasterQ.NiN
 {
     public class Kode
     {
