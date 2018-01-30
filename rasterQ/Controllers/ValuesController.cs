@@ -16,7 +16,7 @@ namespace rasterQ.Controllers
         }
 
         [HttpGet("{x}/{y}")]
-        public async Task<Dictionary<string, string>> Get(double x, double y)
+        public async Task<Dictionary<string, List<string>>> Get(double x, double y)
         {
             var taskList = new Dictionary<string, Task<RasterResult>>();
 
@@ -25,17 +25,25 @@ namespace rasterQ.Controllers
 
             await Task.WhenAll(taskList.Values);
 
-            var values = new Dictionary<string, string>();
+            var values = new Dictionary<string, List<string>>();
 
             foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty))
-                values[task.Value.Result.Key] = task.Value.Result.Value;
+                values[task.Value.Result.Key] = new List<string>{task.Value.Result.Value, task.Value.Result.Key};
 
             NormalizeHeights(taskList, values);
+
+            RemoveDuplicateKeys(values);
 
             return values;
         }
 
-        private static void NormalizeHeights(Dictionary<string, Task<RasterResult>> taskList, IDictionary<string, string> values)
+        private static void RemoveDuplicateKeys(IReadOnlyDictionary<string, List<string>> values)
+        {
+            foreach (var duplicate in values.Where(v => values[v.Key].Contains(v.Key)))
+                duplicate.Value.Remove(duplicate.Key);            
+        }
+
+        private static void NormalizeHeights(Dictionary<string, Task<RasterResult>> taskList, IDictionary<string, List<string>> values)
         {
             foreach (var task in taskList.Where(t =>
                 t.Key.EndsWith("_Global") && values.ContainsKey(t.Value.Result.Key.Split('_')[0])))
