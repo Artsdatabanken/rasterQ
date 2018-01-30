@@ -70,11 +70,11 @@ namespace rasterQ
                     return int16Value.ToString(CultureInfo.InvariantCulture);
                 case 4:
                     var singelValue = BitConverter.ToSingle(valueBytes, 0);
-                    if (singelValue == NullValue || singelValue == 0) return string.Empty;
+                    if (singelValue == NullValue || singelValue == 0 || float.IsNaN(singelValue)) return string.Empty;
                     return singelValue.ToString(CultureInfo.InvariantCulture);
                 case 8:
                     var doubleValue = BitConverter.ToDouble(valueBytes, 0);
-                    if (doubleValue == NullValue || doubleValue == 0) return string.Empty;
+                    if (doubleValue == NullValue || doubleValue == 0 || double.IsNaN(doubleValue)) return string.Empty;
                     return doubleValue.ToString(CultureInfo.InvariantCulture);
                 default:
                     throw new NotImplementedException("Datatype not implemented: " + ValueLength + " bytes");

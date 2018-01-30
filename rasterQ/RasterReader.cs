@@ -48,6 +48,10 @@ namespace rasterQ
         {
             await pageBlob.FetchAttributesAsync();
             var metadata = pageBlob.Metadata;
+
+            var nullValue = float.NaN;
+            var nullValueParsed = metadata.ContainsKey("nullvalue") && float.TryParse(metadata["nullvalue"], NumberStyles.Any, CultureInfo.InvariantCulture, out nullValue);
+
             var dataset = new RasterFile
             {
                 BlobName = pageBlob.Name,
@@ -61,9 +65,7 @@ namespace rasterQ
                 ValueLength = int.Parse(metadata["valuelength"]),
                 Resolution = ParseHeaderDouble(metadata["resolution"]),
                 Crs = metadata.ContainsKey("crs") && metadata["crs"] != "WGS-84" ? int.Parse(metadata["crs"]) : 0,
-                NullValue = metadata.ContainsKey("nullvalue")
-                    ? float.Parse(metadata["nullvalue"], NumberStyles.Any, CultureInfo.InvariantCulture)
-                    : float.NaN
+                NullValue = nullValueParsed ? nullValue : float.NaN
             };
 
             Files.Add(dataset);
