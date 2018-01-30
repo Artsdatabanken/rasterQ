@@ -30,11 +30,37 @@ namespace rasterQ.Controllers
             foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty))
                 values[task.Value.Result.Key] = task.Value.Result.Value;
 
+            NormalizeHeights(taskList, values);
+
+            return values;
+        }
+
+        private static void NormalizeHeights(Dictionary<string, Task<RasterResult>> taskList, IDictionary<string, string> values)
+        {
             foreach (var task in taskList.Where(t =>
                 t.Key.EndsWith("_Global") && values.ContainsKey(t.Value.Result.Key.Split('_')[0])))
                 values.Remove(task.Value.Result.Key);
 
-            return values;
+
+            if (values.ContainsKey("Høyde_Global"))
+            {
+                values["Høyde"] = values["Høyde_Global"];
+                values.Remove("Høyde_Global");
+            }
+
+            var previousKeys = new string[values.Keys.Count];
+            values.Keys.CopyTo(previousKeys,0);
+
+            foreach (var valuesKey in previousKeys.Where( k => k.StartsWith("Høyde_")))
+            {
+                values["Høyde"] = values[valuesKey];
+                values.Remove(valuesKey);
+            }
+
+            if (!values.ContainsKey("Dybde") || !values.ContainsKey("Høyde")) return;
+
+            values["Høyde"] = values["Dybde"];
+            values.Remove("Dybde");
         }
 
         [HttpGet("{x}/{y}/{dataset}")]
