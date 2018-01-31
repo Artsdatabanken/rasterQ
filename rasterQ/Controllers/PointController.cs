@@ -16,6 +16,12 @@ namespace rasterQ.Controllers
             _rasterReader = rasterReader;
         }
 
+        [HttpGet]
+        public ActionResult Get()
+        {
+            return RedirectToAction("Get", "Capabilities");
+        }
+
         [HttpGet("{x}/{y}")]
         public async Task<Dictionary<string, Dictionary<string, string>>> Get(double x, double y)
         {
@@ -26,16 +32,38 @@ namespace rasterQ.Controllers
 
             await Task.WhenAll(taskList.Values);
 
+            var values = PopulateValues(taskList);
+
+            NormalizeHeights(taskList, values);
+
+            return values;
+        }
+
+        [HttpGet("{x}/{y}/{dataset}")]
+        public async Task<Dictionary<string, string>> Get(double x, double y, string dataset)
+        {
+            var result = await _rasterReader.Files.First(d => d.BlobName == dataset).ReadValue(x, y, _rasterReader);
+            return new Dictionary<string, string> { { result.Key, result.Value } };
+        }
+
+        private Dictionary<string, Dictionary<string, string>> PopulateValues(Dictionary<string, Task<Result>> taskList)
+        {
             var values = new Dictionary<string, Dictionary<string, string>>();
 
             foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty))
+            {
                 values[task.Value.Result.Key] = new Dictionary<string, string>
                 {
                     {"value", task.Value.Result.Value},
                     {"dataset", $"{Request.Scheme}://{Request.Host}{Request.PathBase}/v1/datasets/" + task.Key}
                 };
+                if (!_rasterReader.NiNDictionary.ContainsKey(task.Key)) continue;
 
-            NormalizeHeights(taskList, values);
+                values[task.Value.Result.Key]["definition"] =
+                    _rasterReader.NiNCodes.First(c => c.Kode.Id == task.Key).Kode.Definisjon;
+                values[task.Value.Result.Key]["name"] =
+                    _rasterReader.NiNCodes.First(c => c.Kode.Id == task.Key).Navn;
+            }
 
             return values;
         }
@@ -67,19 +95,6 @@ namespace rasterQ.Controllers
 
             values["Høyde"] = values["Dybde"];
             values.Remove("Dybde");
-        }
-
-        [HttpGet("{x}/{y}/{dataset}")]
-        public async Task<Dictionary<string, string>> Get(double x, double y, string dataset)
-        {
-            var result = await _rasterReader.Files.First(d => d.BlobName == dataset).ReadValue(x, y, _rasterReader);
-            return new Dictionary<string, string> {{result.Key, result.Value}};
-        }
-
-        [HttpGet]
-        public ActionResult Get()
-        {
-            return RedirectToAction("Get", "Capabilities");
         }
     }
 }
