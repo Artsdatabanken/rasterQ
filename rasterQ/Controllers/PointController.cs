@@ -10,6 +10,9 @@ namespace rasterQ.Controllers
     public class PointController : Controller
     {
         private readonly Reader _rasterReader;
+        private const string Height = "Høyde";
+        private const string GlobalHeight = Height + "_Global";
+        private const string Depth = "Dybde";
 
         public PointController(Reader rasterReader)
         {
@@ -34,7 +37,7 @@ namespace rasterQ.Controllers
 
             var values = PopulateValues(taskList);
 
-            NormalizeHeights(taskList, values);
+            SelectBestHeight(taskList, values);
 
             return values;
         }
@@ -68,33 +71,30 @@ namespace rasterQ.Controllers
             return values;
         }
 
-        private static void NormalizeHeights(Dictionary<string, Task<Result>> taskList,
+        private static void SelectBestHeight(Dictionary<string, Task<Result>> taskList,
             Dictionary<string, Dictionary<string, string>> values)
         {
             foreach (var task in taskList.Where(t =>
                 t.Key.EndsWith("_Global") && values.ContainsKey(t.Value.Result.Key.Split('_')[0])))
                 values.Remove(task.Value.Result.Key);
 
-
-            if (values.ContainsKey("Høyde_Global"))
-            {
-                values["Høyde"] = values["Høyde_Global"];
-                values.Remove("Høyde_Global");
-            }
+            if (values.ContainsKey(GlobalHeight)) OverwriteHeight(values, GlobalHeight);
 
             var previousKeys = new string[values.Keys.Count];
             values.Keys.CopyTo(previousKeys, 0);
 
-            foreach (var valuesKey in previousKeys.Where(k => k.StartsWith("Høyde_")))
-            {
-                values["Høyde"] = values[valuesKey];
-                values.Remove(valuesKey);
-            }
+            foreach (var valuesKey in previousKeys.Where(k => k.StartsWith(Height + "_")))
+                OverwriteHeight(values, valuesKey);
 
-            if (!values.ContainsKey("Dybde") || !values.ContainsKey("Høyde")) return;
+            if (!values.ContainsKey(Depth) || !values.ContainsKey(Height)) return;
 
-            values["Høyde"] = values["Dybde"];
-            values.Remove("Dybde");
+            OverwriteHeight(values, Depth);
+        }
+
+        private static void OverwriteHeight(IDictionary<string, Dictionary<string, string>> values, string newValueKey)
+        {
+            values[Height] = values[newValueKey];
+            values.Remove(newValueKey);
         }
     }
 }
