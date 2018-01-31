@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using rasterQ.NiN;
@@ -83,6 +84,28 @@ namespace rasterQ.Raster
                 double.TryParse(value.Replace('.', ','), out parseValue);
 
             return parseValue;
+        }
+
+        public Dictionary<string, Dictionary<string, string>> PopulateValues(Dictionary<string, Task<Result>> taskList, HttpRequest request)
+        {
+            var values = new Dictionary<string, Dictionary<string, string>>();
+
+            foreach (var task in taskList.Where(t => t.Value.Result != null && t.Value.Result.Value != string.Empty))
+            {
+                values[task.Value.Result.Key] = new Dictionary<string, string>
+                {
+                    {"value", task.Value.Result.Value},
+                    {"dataset", $"{request.Scheme}://{request.Host}{request.PathBase}/v1/datasets/" + task.Key}
+                };
+                if (!NiNDictionary.ContainsKey(task.Key)) continue;
+
+                values[task.Value.Result.Key]["definition"] =
+                    NiNCodes.First(c => c.Kode.Id == task.Key).Kode.Definisjon;
+                values[task.Value.Result.Key]["name"] =
+                    NiNCodes.First(c => c.Kode.Id == task.Key).Navn;
+            }
+
+            return values;
         }
     }
 }
