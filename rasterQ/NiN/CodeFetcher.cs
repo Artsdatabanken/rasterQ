@@ -9,7 +9,7 @@ namespace rasterQ.NiN
         {
             var client = new HttpClient();
 
-            var response = client.GetAsync("http://webtjenester.artsdatabanken.no/NiN/v2b/variasjon/allekoder").Result;
+            var response = client.GetAsync("https://webtjenester.artsdatabanken.no/NiN/v2b/variasjon/allekoder").Result;
 
             var jsonString = response.Content.ReadAsStringAsync().Result;
 
