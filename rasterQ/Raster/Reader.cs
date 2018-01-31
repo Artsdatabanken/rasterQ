@@ -51,7 +51,8 @@ namespace rasterQ.Raster
         private async Task ReadBlobMetadata(CloudPageBlob pageBlob)
         {
             await pageBlob.FetchAttributesAsync();
-            var metadata = pageBlob.Metadata;
+            
+            var metadata = AddMetadata(pageBlob);
 
             var nullValue = float.NaN;
             var nullValueParsed = metadata.ContainsKey("nullvalue") && float.TryParse(metadata["nullvalue"],
@@ -60,33 +61,36 @@ namespace rasterQ.Raster
             var dataset = new Dataset
             {
                 BlobName = pageBlob.Name,
-                RowLength = int.Parse(metadata["rowlength"]),
-                ColumnLength = int.Parse(metadata["columnlength"]),
-                HeaderOffset = int.Parse(metadata["headeroffset"]),
                 MinX = ParseHeaderDouble(metadata["minx"]),
                 MaxX = ParseHeaderDouble(metadata["maxx"]),
                 MinY = ParseHeaderDouble(metadata["miny"]),
                 MaxY = ParseHeaderDouble(metadata["maxy"]),
-                ValueLength = int.Parse(metadata["valuelength"]),
                 Resolution = ParseHeaderDouble(metadata["resolution"]),
+                RowLength = int.Parse(metadata["rowlength"]),
+                ColumnLength = int.Parse(metadata["columnlength"]),
+                HeaderOffset = int.Parse(metadata["headeroffset"]),
+                ValueLength = int.Parse(metadata["valuelength"]),
                 Crs = metadata.ContainsKey("crs") && metadata["crs"] != "WGS-84" ? int.Parse(metadata["crs"]) : 0,
-                NullValue = nullValueParsed ? nullValue : float.NaN,
-                DataOrigin = metadata["dataorigin"]
+                NullValue = nullValueParsed ? nullValue : float.NaN
             };
 
             Files.Add(dataset);
             PageBlobs[dataset.BlobName] = pageBlob;
-            AddMetadata(pageBlob);
         }
 
-        private void AddMetadata(CloudBlob pageBlob)
+        private Dictionary<string, string> AddMetadata(CloudBlob pageBlob)
         {
             Metadata[pageBlob.Name] = new Dictionary<string, string>();
+
             foreach (var record in pageBlob.Metadata) Metadata[pageBlob.Name][record.Key] = Uri.UnescapeDataString(record.Value);
-            if(NiNCodes.All(c => c.Kode.Id != pageBlob.Name)) return;
+
+            if(NiNCodes.All(c => c.Kode.Id != pageBlob.Name)) return Metadata[pageBlob.Name];
+
             var ninCode = NiNCodes.First(c => c.Kode.Id == pageBlob.Name);
             Metadata[pageBlob.Name]["name"] = ninCode.Navn;
             Metadata[pageBlob.Name]["definition"] = ninCode.Kode.Definisjon;
+
+            return Metadata[pageBlob.Name];
         }
 
         private static double ParseHeaderDouble(string value)
