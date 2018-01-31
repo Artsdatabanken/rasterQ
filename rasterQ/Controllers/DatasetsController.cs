@@ -17,24 +17,19 @@ namespace rasterQ.Controllers
         [HttpGet("{dataset}")]
         public Dictionary<string, string> Get(string dataset)
         {
-            return _rasterReader.PageBlobs[dataset].Metadata as Dictionary<string, string>;
+            return _rasterReader.Metadata[dataset];
         }
 
         [HttpGet("{dataset}/{key}")]
         public string Get(string dataset, string key)
         {
-            return _rasterReader.PageBlobs[dataset].Metadata[key];
+            return _rasterReader.Metadata[dataset][key];
         }
 
         [HttpGet]
-        public Dictionary<string, IDictionary<string, string>> Get()
+        public Dictionary<string, Dictionary<string, string>> Get()
         {
-            var metadata = new Dictionary<string, IDictionary<string, string>>();
-
-            foreach (var cloudPageBlob in _rasterReader.PageBlobs)
-                metadata[cloudPageBlob.Key] = cloudPageBlob.Value.Metadata;
-
-            return metadata;
+            return _rasterReader.Metadata;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace rasterQ.Raster
         public Code[] NiNCodes;
         public Dictionary<string, List<string>> NiNDictionary = new Dictionary<string, List<string>>();
         public Dictionary<string, CloudPageBlob> PageBlobs = new Dictionary<string, CloudPageBlob>();
+        public Dictionary<string, Dictionary<string, string>> Metadata = new Dictionary<string, Dictionary<string, string>>();
 
         public Reader(string key, string containerReference)
         {
@@ -25,6 +27,8 @@ namespace rasterQ.Raster
 
             Container = client.GetContainerReference(containerReference);
 
+            NiNCodes = CodeFetcher.Get();
+
             BlobContinuationToken token = null;
             do
             {
@@ -33,8 +37,6 @@ namespace rasterQ.Raster
 
                 foreach (var item in resultSegment.Results) ReadBlobMetadata((CloudPageBlob) item).Wait();
             } while (token != null);
-
-            NiNCodes = CodeFetcher.Get();
 
             foreach (var rasterFile in Files)
             {
@@ -74,6 +76,17 @@ namespace rasterQ.Raster
 
             Files.Add(dataset);
             PageBlobs[dataset.BlobName] = pageBlob;
+            AddMetadata(pageBlob);
+        }
+
+        private void AddMetadata(CloudBlob pageBlob)
+        {
+            Metadata[pageBlob.Name] = new Dictionary<string, string>();
+            foreach (var record in pageBlob.Metadata) Metadata[pageBlob.Name][record.Key] = Uri.UnescapeDataString(record.Value);
+            if(NiNCodes.All(c => c.Kode.Id != pageBlob.Name)) return;
+            var ninCode = NiNCodes.First(c => c.Kode.Id == pageBlob.Name);
+            Metadata[pageBlob.Name]["name"] = ninCode.Navn;
+            Metadata[pageBlob.Name]["definition"] = ninCode.Kode.Definisjon;
         }
 
         private static double ParseHeaderDouble(string value)
