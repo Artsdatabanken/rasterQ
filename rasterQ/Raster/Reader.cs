@@ -84,7 +84,11 @@ namespace rasterQ.Raster
 
             foreach (var record in pageBlob.Metadata) Metadata[pageBlob.Name][record.Key] = Uri.UnescapeDataString(record.Value);
 
-            if(NiNCodes.All(c => c.Kode.Id != pageBlob.Name)) return Metadata[pageBlob.Name];
+            var description = PagesFetcher.Get(pageBlob.Name);
+
+            if(description != null) Metadata[pageBlob.Name]["article"] = description;
+
+            if (NiNCodes.All(c => c.Kode.Id != pageBlob.Name)) return Metadata[pageBlob.Name];
 
             var ninCode = NiNCodes.First(c => c.Kode.Id == pageBlob.Name);
             Metadata[pageBlob.Name]["name"] = ninCode.Navn;
@@ -120,6 +124,8 @@ namespace rasterQ.Raster
                     NiNCodes.First(c => c.Kode.Id == task.Key).Kode.Definisjon;
                 values[task.Value.Result.Key]["name"] =
                     NiNCodes.First(c => c.Kode.Id == task.Key).Navn;
+
+                values[task.Value.Result.Key]["article"] = Metadata[task.Key]["article"];
             }
 
             return values;
