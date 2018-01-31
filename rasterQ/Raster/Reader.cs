@@ -84,10 +84,6 @@ namespace rasterQ.Raster
 
             foreach (var record in pageBlob.Metadata) Metadata[pageBlob.Name][record.Key] = Uri.UnescapeDataString(record.Value);
 
-            var description = PagesFetcher.Get(pageBlob.Name);
-
-            if(description != null) Metadata[pageBlob.Name]["article"] = description;
-
             if (NiNCodes.All(c => c.Kode.Id != pageBlob.Name)) return Metadata[pageBlob.Name];
 
             var ninCode = NiNCodes.First(c => c.Kode.Id == pageBlob.Name);
