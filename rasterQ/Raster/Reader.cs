@@ -122,6 +122,8 @@ namespace rasterQ.Raster
                     NiNCodes.First(c => c.Kode.Id == task.Key).Navn;
 
                 values[task.Value.Result.Key]["article"] = Metadata[task.Key]["article"];
+
+                values[task.Value.Result.Key]["logo"] = Metadata[task.Key]["logo"];
             }
 
             return values;
