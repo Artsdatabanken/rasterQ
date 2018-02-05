@@ -117,6 +117,12 @@ namespace rasterQ.Raster
 
                 if(Metadata[task.Key].ContainsKey("logo")) values[task.Value.Result.Key]["logo"] = Metadata[task.Key]["logo"];
 
+                if (Metadata[task.Key].ContainsKey("attribution")) values[task.Value.Result.Key]["attribution"] = Metadata[task.Key]["attribution"];
+
+                if (Metadata[task.Key].ContainsKey("dataorigin")) values[task.Value.Result.Key]["dataorigin"] = Metadata[task.Key]["dataorigin"];
+
+                if (Metadata[task.Key].ContainsKey("homepage")) values[task.Value.Result.Key]["homepage"] = Metadata[task.Key]["homepage"];
+
                 if (!NiNDictionary.ContainsKey(task.Key)) continue;
 
                 values[task.Value.Result.Key]["definition"] =
