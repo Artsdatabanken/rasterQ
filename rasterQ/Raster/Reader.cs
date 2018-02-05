@@ -114,6 +114,9 @@ namespace rasterQ.Raster
                     {"value", task.Value.Result.Value},
                     {"dataset", $"{request.Scheme}://{request.Host}{request.PathBase}/v1/datasets/" + task.Key}
                 };
+
+                if(Metadata[task.Key].ContainsKey("logo")) values[task.Value.Result.Key]["logo"] = Metadata[task.Key]["logo"];
+
                 if (!NiNDictionary.ContainsKey(task.Key)) continue;
 
                 values[task.Value.Result.Key]["definition"] =
@@ -122,8 +125,6 @@ namespace rasterQ.Raster
                     NiNCodes.First(c => c.Kode.Id == task.Key).Navn;
 
                 values[task.Value.Result.Key]["article"] = Metadata[task.Key]["article"];
-
-                values[task.Value.Result.Key]["logo"] = Metadata[task.Key]["logo"];
             }
 
             return values;
