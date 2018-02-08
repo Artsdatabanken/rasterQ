@@ -115,25 +115,32 @@ namespace rasterQ.Raster
                     {"dataset", $"{request.Scheme}://{request.Host}{request.PathBase}/v1/datasets/" + task.Key}
                 };
 
-                if(Metadata[task.Key].ContainsKey("logo")) values[task.Value.Result.Key]["logo"] = Metadata[task.Key]["logo"];
-
-                if (Metadata[task.Key].ContainsKey("attribution")) values[task.Value.Result.Key]["attribution"] = Metadata[task.Key]["attribution"];
-
-                if (Metadata[task.Key].ContainsKey("dataorigin")) values[task.Value.Result.Key]["dataorigin"] = Metadata[task.Key]["dataorigin"];
-
-                if (Metadata[task.Key].ContainsKey("homepage")) values[task.Value.Result.Key]["homepage"] = Metadata[task.Key]["homepage"];
-
-                if (!NiNDictionary.ContainsKey(task.Key)) continue;
-
-                values[task.Value.Result.Key]["definition"] =
-                    NiNCodes.First(c => c.Kode.Id == task.Key).Kode.Definisjon;
-                values[task.Value.Result.Key]["name"] =
-                    NiNCodes.First(c => c.Kode.Id == task.Key).Navn;
-
-                values[task.Value.Result.Key]["article"] = Metadata[task.Key]["article"];
+                AddMetadataToResult(values, task);
             }
 
             return values;
+        }
+
+        private static readonly List<string> ResultMetadataKeyList = new List<string>
+        {
+            "logo","attribution","dataorigin","homepage","metadata","article"
+        };
+
+        private void AddMetadataToResult(IReadOnlyDictionary<string, Dictionary<string, string>> values, KeyValuePair<string, Task<Result>> task)
+        {
+            foreach (var metadataKey in ResultMetadataKeyList) AddIfKeyExists(metadataKey, task, values);
+
+            if (!NiNDictionary.ContainsKey(task.Key)) return;
+
+            values[task.Value.Result.Key]["definition"] =
+                NiNCodes.First(c => c.Kode.Id == task.Key).Kode.Definisjon;
+            values[task.Value.Result.Key]["name"] =
+                NiNCodes.First(c => c.Kode.Id == task.Key).Navn;
+        }
+
+        private void AddIfKeyExists(string metadataKey, KeyValuePair<string, Task<Result>> task, IReadOnlyDictionary<string, Dictionary<string, string>> values)
+        {
+            if (Metadata[task.Key].ContainsKey(metadataKey)) values[task.Value.Result.Key][metadataKey] = Metadata[task.Key][metadataKey];
         }
     }
 }
