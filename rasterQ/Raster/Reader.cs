@@ -123,7 +123,7 @@ namespace rasterQ.Raster
 
         private static readonly List<string> ResultMetadataKeyList = new List<string>
         {
-            "logo","attribution","dataorigin","homepage","metadata","article", "uom"
+            "logo","attribution","dataorigin","homepage","metadata","article", "uom","namespace"
         };
 
         private void AddMetadataToResult(IReadOnlyDictionary<string, Dictionary<string, string>> values, KeyValuePair<string, Task<Result>> task)
